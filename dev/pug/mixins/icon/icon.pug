@@ -1,0 +1,19 @@
+mixin icon(options)
+  //- Принимает:
+  //-   options.name    {string} - имя иконки
+  //-   options.mods    {string} - список модификаторов
+  //- Вызов:
+      +icon({ name: 'icon', mods='large' })(href='/')  - есть href, это точно ссылка
+  -
+    // список модификаторов
+    var allMods = '';
+    if (typeof(options.mods) !== 'undefined' && options.mods) {
+      var modsList = options.mods.split(',');
+      for (var i = 0; i < modsList.length; i++) {
+        allMods = allMods + ' icon--' + modsList[i].trim();
+      }
+    }
+  //- Если имя передано, тогда рендерим иконку
+  if (options.name)
+    svg.svg-sprite-icon.icon(class='icon-' + options.name + allMods)&attributes(attributes)
+      use(xlink:href='static/images/svg/symbol/sprite.svg#' + options.name)

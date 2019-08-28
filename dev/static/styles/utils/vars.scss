@@ -1,0 +1,30 @@
+// grid
+$container-max-widths: (
+  sm: 100%,
+  md: 100%,
+  lg: 960px,
+  xl: 1220px
+) !default;
+
+// common
+$border-radius: 0;
+
+//Colors
+$white: #ffffff;
+$main-color: #7e44fe;
+$secondary-color: #8246fe;
+$primary: $main-color;
+
+
+@import "../../../../node_modules/bootstrap/scss/bootstrap";
+
+$general-images: "../images/general/";
+$png: "../images/png/";
+$svg-icon: "../images/svg/";
+
+// Fonts Family
+$base-font-family: "Roboto", "Ubuntu", "Droid Sans", "Helvetica Neue", "Arial", sans-serif;
+$secondary-font-family: "Bebas Neue", "Helvetica Neue", "Arial", sans-serif;
+
+// Font
+$base-font-size: 16px;

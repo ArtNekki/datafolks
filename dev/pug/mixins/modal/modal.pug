@@ -1,0 +1,12 @@
+mixin modal(data={})
+  .modal.fade&attributes(attributes)
+    form(action='#').modal-dialog(role='document')
+      .modal-content
+        .modal-header
+          h5.modal-title= data.title
+          button.close(type='button' class='close' data-dismiss='modal' aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          block
+        .modal-footer
+          button.btn.btn-primary(type='submit') Submit

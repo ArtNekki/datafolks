@@ -1,0 +1,4 @@
+mixin form-group(data={})
+  .form-group&attributes(attributes)
+    label.col-form-label(for=data.id)= data.label
+    input.form-control(id=data.id type=data.type required = data.required)

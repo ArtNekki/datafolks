@@ -1,0 +1,312 @@
+@mixin size($a,$b: $a) {
+  width: $a;
+  height: $b;
+}
+
+@mixin optional-at-root($sel) {
+  @at-root #{if(not &, $sel, selector-append(&, $sel))} {
+    @content;
+  }
+}
+
+@mixin placeholder {
+  @include optional-at-root("::-webkit-input-placeholder") {
+    @content;
+  }
+
+  @include optional-at-root(":-moz-placeholder") {
+    @content;
+  }
+
+  @include optional-at-root("::-moz-placeholder") {
+    @content;
+  }
+
+  @include optional-at-root(":-ms-input-placeholder") {
+    @content;
+  }
+}
+
+@mixin png($name, $width, $height) {
+  width: $width;
+  height: $height;
+  background-image: url($png + $name + ".png");
+  background-repeat: no-repeat !important;
+
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    background-image: url($png + $name + "@2x.png");
+  }
+
+  @media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 288dpi) {
+    background-image: url($png + $name + "@3x.png");
+  }
+
+  @media (-webkit-min-device-pixel-ratio: 4), (min-resolution: 384dpi) {
+    background-image: url($png + $name + "@4x.png");
+  }
+}
+
+@mixin bg-image($name, $ext) {
+  background-image: url($general-images + $name + "." + $ext);
+
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    background-image: url($general-images + $name + "@2x." + $ext);
+  }
+
+  @media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 288dpi) {
+    background-image: url($general-images + $name + "@3x." + $ext);
+  }
+
+  @media (-webkit-min-device-pixel-ratio: 4), (min-resolution: 384dpi) {
+    background-image: url($general-images + $name + "@4x." + $ext);
+  }
+}
+
+@mixin min-media($size, $orientation: "landscape") {
+  @media screen and (min-width: $size) {
+    @content;
+  }
+}
+
+@mixin range-media($min-width, $max-width, $orientation: "landscape") {
+  @media screen and (min-width: $min-width) and (max-width: $max-width - 1px) {
+    @content;
+  }
+}
+
+@mixin hover($parent: null, $touch: false) {
+  $selectors: "#{&}";
+  $isPseudo: str-index($selectors, "::before") or str-index($selectors, "::after");
+  $isChecked: str-index($selectors, "> input:checked");
+  $touchMod: null;
+
+  @if (not $touch) {
+    $touchMod: "html:not(.touch)";
+  }
+
+  @if ($parent and $isChecked) {
+    #{$touchMod} & {
+      $selector: &;
+      $splitSelector: str-split("#{$selector}", ">");
+      $selector: str-replace(nth($splitSelector, 1), $parent, "#{$parent}:hover");
+      $selector: "#{$selector} > #{nth($splitSelector, 2)}";
+
+      @at-root #{$selector} {
+         @content;
+      }
+    }
+  } @else if ($parent) {
+    #{$touchMod} #{$parent}:hover & {
+      @content;
+    }
+  } @else if (not $parent and $isPseudo) {
+    $mods: get-map-modified-pseudo-selectors("#{$selectors}");
+
+    #{$touchMod} &:hover {
+      $selector: &;
+
+      @each $mod in $mods {
+        $selector: selector-replace($selector, map-get($mod, "original"), map-get($mod, "new"));
+      }
+
+      @at-root #{$selector} {
+         @content;
+      }
+    }
+  } @else { //not $parent and not $isPseudo
+    #{$touchMod} &:hover {
+      @content;
+    }
+  }
+}
+
+@mixin hover-before {
+  html:not(.touch) & {
+
+    &:hover::before {
+      @content;
+    }
+  }
+}
+
+@mixin hover-after {
+  html:not(.touch) & {
+
+    &:hover::after {
+      @content;
+    }
+  }
+}
+
+@mixin hover-pseudo-element {
+  html:not(.touch) & {
+
+    &:hover::before,
+    &:hover::after {
+      @content;
+    }
+  }
+}
+
+@mixin active($parent: null, $class: false) {
+  $selectors: "#{&}";
+  $isPseudo: str-index($selectors, "::before") or str-index($selectors, "::after");
+  $isChecked: str-index($selectors, "> input:checked");
+
+  @if ($parent and $isChecked) {
+    #{$touchMod} & {
+      $selector: &;
+      $splitSelector: str-split("#{$selector}", ">");
+      $selector: str-replace(nth($splitSelector, 1), $parent, "#{$parent}:hover");
+      $selector: "#{$selector} > #{nth($splitSelector, 2)}";
+
+      @at-root #{$selector} {
+        @debug $selector;
+
+         @content;
+      }
+    }
+  } @else if $parent {
+    #{$parent}:active &,
+    #{$parent}--active & {
+      @content;
+    }
+  } @else if (not $parent and $isPseudo) {
+    $mods: get-map-modified-pseudo-selectors("#{$selectors}");
+
+    &:active {
+      $selector: &;
+
+      @each $mod in $mods {
+        $selector: selector-replace($selector, map-get($mod, "original"), map-get($mod, "new"));
+      }
+
+      @at-root #{$selector} {
+         @content;
+      }
+    }
+
+  } @else { //not $parent and not $isPseudo
+    &:active,
+    &--active
+    {
+      @content;
+    }
+  }
+}
+
+@mixin focus($parent: null, $onlyTouch: false) {
+  $selectors: "#{&}";
+  $isPseudo: str-index($selectors, "::before") or str-index($selectors, "::after");
+  $isChecked: str-index($selectors, "> input:checked");
+  $touchMod: null;
+
+  @if ($onlyTouch) {
+    $touchMod: "html.touch";
+  }
+
+  @if ($parent and $isChecked) {
+    #{$touchMod} & {
+      $selector: &;
+      $splitSelector: str-split("#{$selector}", ">");
+      $selector: str-replace(nth($splitSelector, 1), $parent, "#{$parent}:hover");
+      $selector: "#{$selector} > #{nth($splitSelector, 2)}";
+
+      @at-root #{$selector} {
+        @debug $selector;
+
+         @content;
+      }
+    }
+  } @else if $parent {
+    #{$touchMod} #{$parent}:focus & {
+      @content;
+    }
+  } @else if (not $parent and $isPseudo) {
+    $mods: get-map-modified-pseudo-selectors("#{$selectors}");
+
+    #{$touchMod} &:focus {
+      $selector: &;
+
+      @each $mod in $mods {
+        $selector: selector-replace($selector, map-get($mod, "original"), map-get($mod, "new"));
+      }
+
+      @at-root #{$selector} {
+         @content;
+      }
+    }
+  } @else { //not $parent and not $isPseudo
+    #{$touchMod} &:focus {
+      @content;
+    }
+  }
+}
+
+@mixin active-before {
+  &:active::before,
+  &:focus::before,
+  &--active::before {
+    @content;
+  }
+}
+
+@mixin active-pseudo-element {
+  &:active::before,
+  &:focus::before,
+  &:active::after,
+  &:focus::after,
+  &--active::before,
+  &--active::after {
+    @content;
+  }
+}
+
+@mixin underline($pos: 0, $color: $white, $height: 2px, $letter-spacing-offset: 0px) {
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: $pos;
+    @include size(calc(100% - #{$letter-spacing-offset}), $height);
+    background-color: $color;
+  }
+}
+
+@mixin absolute-background-color($color: $white, $index: -1) {
+  position: absolute;
+  z-index: $index;
+  top: 0;
+  right: -$grid-gutter-width/2;
+  left: -$grid-gutter-width/2;
+  bottom: 0;
+  background-color: $color;
+
+  @include min-media($screen-sm) {
+    right: -$grid-gutter-width-sm/2;
+    left: -$grid-gutter-width-sm/2;
+  }
+
+  @include min-media($screen-md) {
+    left: -$grid-gutter-width-md/2;
+    right: -$grid-gutter-width-md/2;
+  }
+
+  @include min-media($screen-lg) {
+    right: -$grid-gutter-width-lg/2;
+    left: -$grid-gutter-width-lg/2;
+  }
+  //
+  @include min-media($screen-xl) {
+    right: -$grid-gutter-width-xl/2;
+    left: -$grid-gutter-width-xl/2;
+  }
+}
+
+@mixin isActiveBlock($trigger, $mod: "") {
+  $selector: str-insert($trigger, $mod, -1);
+
+  #{$selector} & {
+    @content;
+  }
+}
